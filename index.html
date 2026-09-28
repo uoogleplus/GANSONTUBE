@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GansonTube</title>
+<style>
+:root{--red:#cc181e;--bg:#f1f1f1;--line:#e2e2e2;--text:#333;--muted:#767676;--link:#167ac6}
+*{box-sizing:border-box}
+body{margin:0;font-family:Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:13px}
+a{color:inherit;text-decoration:none}
+.hidden{display:none!important}
+.muted{color:var(--muted)}
+.small{font-size:12px;color:var(--muted)}
+.err{color:#c5221f;font-size:12px;margin-top:6px}
+input[type=text],input[type=password],input[type=url],textarea{width:100%;border:1px solid #d3d3d3;padding:7px 8px;font-family:inherit;font-size:13px;background:#fff;box-shadow:inset 0 1px 2px #eee}
+textarea{resize:vertical}
+.gbtn{height:34px;padding:0 14px;border:1px solid #d3d3d3;background:linear-gradient(#fbfbfb,#f0f0f0);color:#333;font-size:13px;font-weight:500;cursor:pointer;border-radius:2px}
+.gbtn:hover{border-color:#b9b9b9}
+.gbtn.blue{background:#167ac6;border-color:#167ac6;color:#fff}
+.gbtn.red{background:var(--red);border-color:#b31217;color:#fff}
+.gbtn.green{background:#4d9a1f;border-color:#3f8218;color:#fff}
+.gbtn:disabled{opacity:.5;cursor:default}
+.linkbtn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:0}
+.linkbtn:hover{color:#000}
+#top{position:sticky;top:0;z-index:50;height:56px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;padding:0 16px}
+#menuBtn{background:none;border:none;cursor:pointer;color:#666;display:flex;padding:6px}
+.logo{font-family:Arial,sans-serif;font-size:22px;font-weight:bold;letter-spacing:-1px;color:#333;display:flex;align-items:center;white-space:nowrap}
+.logo img{display:block;height:32px;width:auto}
+.searchbar{display:flex;flex:1;max-width:640px;margin-left:40px}
+.searchbar input{height:30px;border-right:none;border-radius:2px 0 0 2px}
+.searchbar button{width:64px;height:30px;border:1px solid #d3d3d3;background:#f8f8f8;cursor:pointer;color:#666;display:flex;align-items:center;justify-content:center;border-radius:0 2px 2px 0}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px;position:relative}
+.avatar{width:32px;height:32px;background:#bbb;color:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;border-radius:2px}
+.avatar img{width:100%;height:100%;object-fit:cover;aspect-ratio:1/1}
+.dropmenu{position:absolute;right:0;top:100%;margin-top:6px;background:#fff;border:1px solid #ccc;box-shadow:0 2px 6px rgba(0,0,0,.2);min-width:170px;z-index:60}
+.dropmenu button{display:block;width:100%;text-align:left;padding:9px 14px;background:none;border:none;cursor:pointer;font-size:13px}
+.dropmenu button:hover{background:#f1f1f1}
+#shell{display:flex;align-items:flex-start}
+#guide{flex:0 0 240px;width:240px;background:#fff;border-right:1px solid var(--line);min-height:calc(100vh - 56px);position:sticky;top:56px;padding:12px 0}
+#guide.collapsed{display:none}
+.gitem{display:flex;align-items:center;gap:16px;width:100%;padding:9px 20px;background:none;border:none;text-align:left;font-size:14px;color:#333;cursor:pointer}
+.gitem:hover{background:#f1f1f1}
+.gitem.active{background:var(--red);color:#fff}
+.gsection{padding:14px 20px 6px;font-size:11px;font-weight:bold;color:var(--muted);text-transform:uppercase}
+.gsignin{margin:14px 20px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:12px;color:#555}
+.gsignin button{margin-top:10px}
+#page{flex:1;min-width:0;padding:0 20px 30px}
+.tabsbar{display:flex;justify-content:center;gap:34px;background:#fff;border-bottom:1px solid var(--line);margin:0 -20px 20px;height:46px}
+.tabsbar a{display:flex;align-items:center;font-size:16px;color:var(--muted);border-bottom:3px solid transparent;padding:0 6px}
+.tabsbar a.active{color:#111;font-weight:500;border-color:var(--red)}
+.whitebox{background:#fff;border:1px solid var(--line);padding:24px 30px;max-width:1250px;margin:0 auto}
+.pad{padding:24px}
+.thumb{position:relative;aspect-ratio:16/9;background:#111;overflow:hidden}
+.thumb video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.thumb .dur{position:absolute;right:3px;bottom:3px;background:rgba(0,0,0,.8);color:#fff;font-size:12px;font-weight:bold;padding:1px 4px;border-radius:2px}
+.thumb .dur:empty{display:none}
+.thumb.broken::after{content:"Video unavailable";color:#aaa;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px}
+.vtitle{color:var(--link);font-size:16px;font-weight:500;margin:8px 0 2px;line-height:1.25;overflow:hidden}
+.vmeta{color:var(--muted);font-size:13px;line-height:1.4}
+.vmeta a:hover{color:#000}
+.featured{display:flex;gap:20px;margin-bottom:30px}
+.featBig{flex:1.5;min-width:0}
+.featBig .vtitle{font-size:20px}
+.featSide{flex:1;display:flex;flex-direction:column;gap:14px;min-width:0}
+.sideCard{display:flex;gap:14px}
+.sideCard .thumb{flex:0 0 46%}
+.section{border-top:1px solid var(--line);padding:22px 0 8px;margin-top:8px}
+.sechead{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.sechead h2{margin:0;font-size:20px;font-weight:400}
+.sechead .rec{color:var(--muted);font-size:16px}
+.subbox{margin-left:auto;display:flex}
+.subbtn{height:30px;padding:0 12px;background:var(--red);color:#fff;border:1px solid #b31217;font-weight:bold;font-size:14px;cursor:pointer;border-radius:2px 0 0 2px}
+.subbtn.on{background:#e8e8e8;color:#555;border-color:#d0d0d0}
+.subcount{height:30px;padding:0 10px;display:flex;align-items:center;border:1px solid #d3d3d3;border-left:none;background:#fafafa;color:#555;border-radius:0 2px 2px 0}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.watch{display:flex;gap:24px;max-width:1300px;margin:20px auto 0;align-items:flex-start}
+.watchMain{flex:1;min-width:0}
+.upNext{flex:0 0 400px;background:#fff;border:1px solid var(--line);padding:14px}
+.player{display:block;width:100%;aspect-ratio:16/9;background:#000}
+.wcard{background:#fff;border:1px solid var(--line);margin-top:10px;padding:16px}
+.wtitle{font-size:20px;font-weight:400;margin:0 0 12px;color:#222}
+.wrow{display:flex;align-items:flex-start;gap:12px}
+.wrow .cname{font-size:14px;font-weight:500;color:#222}
+.wstats{margin-left:auto;text-align:right}
+.viewsBig{font-size:22px;color:#333}
+.likebar{height:3px;background:#ccc;margin:4px 0 2px;min-width:180px}
+.likebar div{height:100%;background:#4d9a1f}
+.actions{display:flex;gap:6px;margin-top:14px;padding-top:10px;border-top:1px solid var(--line)}
+.abtn{display:flex;align-items:center;gap:6px;background:none;border:none;color:#666;cursor:pointer;font-weight:500;font-size:13px;padding:6px 10px}
+.abtn:hover{color:#000}
+.abtn.on{color:var(--red)}
+.flip{transform:rotate(180deg)}
+.desc{white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.5;margin-top:6px}
+.desc.clamp{max-height:66px;overflow:hidden}
+.comments h3{margin:0 0 14px;font-size:15px;font-weight:500}
+.cbox{display:flex;gap:12px;margin-bottom:20px}
+.cbox .avatar{width:48px;height:48px}
+.cbox .cin{flex:1}
+.cbox .cin div{margin-top:8px;display:flex;gap:8px}
+.comment{display:flex;gap:12px;margin-bottom:16px}
+.comment .avatar{width:40px;height:40px}
+.chead{font-size:13px}
+.chead b{color:#222;margin-right:6px;cursor:pointer}
+.ctext{margin-top:2px;white-space:pre-wrap;word-break:break-word;line-height:1.4}
+.cacts{margin-top:4px;display:flex;gap:12px}
+.creplies{margin-top:12px}
+.upItem{display:flex;gap:10px;margin-bottom:12px}
+.upItem .thumb{flex:0 0 168px}
+.upItem .vtitle{font-size:14px;margin-top:0;color:#222}
+.switch{display:inline-flex;align-items:center;gap:8px;color:var(--muted);cursor:pointer}
+.switch i{width:34px;height:14px;background:#bbb;border-radius:8px;position:relative;display:inline-block}
+.switch i::after{content:"";position:absolute;top:-2px;left:0;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.4);transition:left .15s}
+.switch.on i{background:#f28c8c}
+.switch.on i::after{left:16px;background:var(--red)}
+.upload{display:flex;gap:20px;max-width:1250px;margin:20px auto 0;align-items:flex-start}
+.dropzone{flex:1;background:#fff;border:1px solid var(--line);padding:50px 30px;text-align:center}
+.dropzone.over{outline:3px dashed var(--red)}
+.bigup{width:120px;height:86px;margin:0 auto 14px;background:#c8c8c8;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff}
+.dropzone h2{margin:0 0 12px;font-size:22px;font-weight:400}
+.upForm{max-width:620px;margin:28px auto 0;text-align:left}
+.upForm label{display:block;font-weight:500;margin:14px 0 5px}
+.upPreview{margin-top:14px}
+.upSide{flex:0 0 250px;background:#fff;border:1px solid var(--line);padding:16px;font-size:12px;color:#555;line-height:1.5}
+.upSide h4{margin:0 0 8px;font-size:12px;color:#333}
+.chBanner{height:200px;background:radial-gradient(circle at 20% 40%,#274b7a 0,transparent 30%),radial-gradient(circle at 60% 60%,#3b2c6b 0,transparent 35%),linear-gradient(#0e1726,#182a44);background-size:cover;background-position:center;position:relative}
+.chBanner img{width:100%;height:100%;object-fit:cover;display:block}
+.chBanner .chIcon{position:absolute;left:0;top:0;width:100px;height:100px;border:3px solid #fff;background:#bbb;display:flex;align-items:center;justify-content:center;color:#fff;overflow:hidden}
+.chBanner .chIcon img{width:100%;height:100%}
+.chHead{background:#fff;border:1px solid var(--line);border-top:none;padding:14px 20px 0}
+.chHead .row1{display:flex;align-items:center;gap:14px}
+.chHead h1{margin:0;font-size:22px;font-weight:400}
+.chTabs{display:flex;gap:24px;margin-top:12px}
+.chTabs a{padding:8px 2px;color:var(--muted);font-size:13px;border-bottom:3px solid transparent;text-transform:uppercase;font-weight:500}
+.chTabs a.active{color:#111;border-color:var(--red)}
+.chBody{display:flex;gap:20px;margin-top:16px;align-items:flex-start}
+.chMain{flex:1;min-width:0;background:#fff;border:1px solid var(--line);padding:18px}
+.chSide{flex:0 0 260px;background:#fff;border:1px solid var(--line);padding:14px}
+.chSide h4{margin:0 0 10px;font-size:13px}
+.relRow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.relRow .avatar{width:32px;height:32px}
+.relRow a{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#333}
+.aboutRow{margin-bottom:12px;line-height:1.5}
+.form label{display:block;margin:10px 0 4px;font-weight:500}
+.result{display:flex;gap:16px;margin-bottom:18px}
+.result .thumb{flex:0 0 246px}
+.result .vtitle{font-size:18px;margin-top:0}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+.modalbox{background:#f1f1f1;border:1px solid #ccc;width:360px;max-width:100%;padding:24px;position:relative}
+.modalbox h2{margin:0 0 12px;font-size:20px;font-weight:400}
+.modalbox label{display:block;font-weight:bold;margin:12px 0 5px}
+.modalbox .x{position:absolute;right:10px;top:8px;background:none;border:none;font-size:20px;cursor:pointer;color:#666}
+.stayrow{display:flex;align-items:center;gap:6px;margin-top:12px;color:#555}
+.stayrow input{margin:0}
+.modalbox .loginLinks{margin-top:14px}
+.modalbox .loginLinks a{color:#1a55c8;cursor:pointer}
+footer{margin-top:30px;padding:16px 0;text-align:center;color:var(--muted);font-size:12px;display:flex;justify-content:center;align-items:center;gap:8px}
+.statusdot{width:10px;height:10px;border-radius:50%;background:#0f9d58;cursor:pointer}
+.statusdot.down{background:#db4437}
+@media (max-width:1100px){
+  .watch{flex-direction:column}
+  .upNext{flex:none;width:100%}
+  .grid5{grid-template-columns:repeat(3,1fr)}
+  .chBody{flex-direction:column}
+  .chSide{flex:none;width:100%}
+  .upload{flex-direction:column}
+  .upSide{flex:none;width:100%}
+}
+@media (max-width:820px){
+  #guide{position:fixed;z-index:40;left:0;top:56px;bottom:0;overflow-y:auto}
+  .featured{flex-direction:column}
+  .grid4{grid-template-columns:repeat(2,1fr)}
+  .grid5{grid-template-columns:repeat(2,1fr)}
+  .searchbar{margin-left:0}
+  .whitebox{padding:16px}
+  .result{flex-direction:column}
+  .result .thumb{flex:none;width:100%}
+}
+@media (max-width:560px){
+  #top{gap:8px;padding:0 8px}
+  .logo{font-size:18px}
+  #uploadBtn{display:none}
+  .searchbar button{width:44px}
+}
+</style>
+</head>
+<body>
+
+<header id="top">
+  <button id="menuBtn" type="button"><span data-icon="menu"></span></button>
+  <a class="logo" href="#/"><img src="ganson.png" alt="GansonTube" width="120" height="32"></a>
+  <div class="searchbar">
+    <input type="text" id="search" placeholder="Search">
+    <button id="searchBtn" type="button"><span data-icon="search"></span></button>
+  </div>
+  <div class="hdr-right">
+    <button class="gbtn" id="uploadBtn" type="button">Upload</button>
+    <button class="gbtn blue" id="signInBtn" type="button">Sign in</button>
+    <div id="userBox" class="hidden">
+      <div class="avatar" id="hdrAvatar" style="cursor:pointer"></div>
+      <div class="dropmenu hidden" id="userMenu">
+        <button id="myChannelMenu" type="button">My channel</button>
+        <button id="signOutBtn" type="button">Sign out</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div id="shell">
+  <aside id="guide">
+    <a class="gitem" data-route="home" href="#/"><span data-icon="home"></span>Home</a>
+    <a class="gitem" data-route="trending" href="#/trending"><span data-icon="trending"></span>Trending</a>
+    <a class="gitem" data-route="subscriptions" href="#/subscriptions"><span data-icon="subs"></span>Subscriptions</a>
+    <button class="gitem" id="guideMyChannel" type="button"><span data-icon="person"></span>My channel</button>
+    <div id="guideSubs"></div>
+    <div class="gsignin" id="guideSignin">Sign in to subscribe to channels and see their latest videos.<div><button class="gbtn blue" id="guideSignInBtn" type="button">Sign in</button></div></div>
+  </aside>
+  <main id="page"></main>
+</div>
+
+<div class="modal hidden" id="loginModal">
+  <div class="modalbox">
+    <button class="x" id="closeLogin" type="button">&times;</button>
+    <div id="stepUsername">
+      <h2>Sign in</h2>
+      <label for="loginUser">Username</label>
+      <input type="text" id="loginUser">
+      <button class="gbtn blue" id="continueBtn" type="button" style="margin-top:16px">Continue</button>
+      <div id="usernameErr" class="err"></div>
+      <div class="small" style="margin-top:12px">New here? Enter a username you want and you'll be asked to create a password.</div>
+    </div>
+    <div id="stepLogin" class="hidden">
+      <h2>Sign in</h2>
+      <div class="small">Welcome back, <b id="loginUnameLabel"></b></div>
+      <label for="loginPass">Password</label>
+      <input type="password" id="loginPass">
+      <div style="margin-top:16px;display:flex;gap:8px">
+        <button class="gbtn blue" id="loginBtn" type="button">Sign in</button>
+        <button class="gbtn" id="backFromLogin" type="button">Back</button>
+      </div>
+      <div id="loginErr" class="err"></div>
+      <div class="loginLinks"><a id="forgotLink">Can't access your account?</a></div>
+    </div>
+    <div id="stepSignup" class="hidden">
+      <h2>Create account</h2>
+      <div class="small"><b id="signupUnameLabel"></b> is available.</div>
+      <label for="signupPass">Password</label>
+      <input type="password" id="signupPass">
+      <label for="signupQuestion">Backup security question</label>
+      <input type="text" id="signupQuestion">
+      <label for="signupAnswer">Security answer</label>
+      <input type="text" id="signupAnswer">
+      <div style="margin-top:16px;display:flex;gap:8px">
+        <button class="gbtn blue" id="signupBtn" type="button">Create account</button>
+        <button class="gbtn" id="backFromSignup" type="button">Back</button>
+      </div>
+      <div id="signupErr" class="err"></div>
+    </div>
+    <div id="stepForgot" class="hidden">
+      <h2>Reset password</h2>
+      <div class="small">for <b id="forgotUnameLabel"></b></div>
+      <div id="forgotQuestion" class="small" style="margin-top:8px"></div>
+      <label for="forgotAnswer">Security answer</label>
+      <input type="text" id="forgotAnswer">
+      <label for="forgotNewPass">New password</label>
+      <input type="password" id="forgotNewPass">
+      <div style="margin-top:16px;display:flex;gap:8px">
+        <button class="gbtn blue" id="forgotBtn" type="button">Reset password</button>
+        <button class="gbtn" id="backFromForgot" type="button">Back</button>
+      </div>
+      <div id="forgotErr" class="err"></div>
+    </div>
+    <div class="stayrow"><input type="checkbox" id="stayCheckbox" checked><label for="stayCheckbox" style="margin:0;font-weight:normal">Stay signed in (remember my username)</label></div>
+    <div class="small" style="margin-top:10px">If you forget your password and security question there currently is no way to reset your password</div>
+  </div>
+</div>
+
+<script type="module">
+import { SimplePool, finalizeEvent, getPublicKey, verifyEvent } from 'https://cdn.jsdelivr.net/npm/nostr-tools@2.10.4/+esm';
+
+const RELAYS = ["wss://relay.damus.io","wss://nos.lol","wss://relay.nostr.band","wss://relay.primal.net","wss://relay.snort.social","wss://nostr.mom","wss://offchain.pub"];
+const APP_NAMESPACE = "gansontube-v1";
+const ACCOUNT_KIND = 7371;
+const IMG_HOST = "files.catbox.moe";
+const PBKDF2_ITER = 150000;
+const pool = new SimplePool();
+
+function lsGet(k,f){ try{ const v=localStorage.getItem(k); return v===null?f:JSON.parse(v);}catch(e){return f;} }
+function lsSet(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+async function sha256Bytes(str){ const b=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)); return new Uint8Array(b); }
+function bytesToHex(b){ return Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join(''); }
+function hexToBytes(hex){ const b=new Uint8Array(hex.length/2); for(let i=0;i<b.length;i++) b[i]=parseInt(hex.substr(i*2,2),16); return b; }
+async function sha256Hex(str){ return bytesToHex(await sha256Bytes(str)); }
+function normUser(u){ return (u||'').trim().toLowerCase(); }
+async function randomBytes(n){ const b=new Uint8Array(n); crypto.getRandomValues(b); return b; }
+
+async function keysForUsername(username){
+  const secretKey = await sha256Bytes('uoogle-account-v1:'+normUser(username));
+  const pubkey = getPublicKey(secretKey);
+  const tag = '@' + bytesToHex(secretKey).slice(0,6).toUpperCase();
+  return { secretKey, pubkey, tag };
+}
+
+async function pbkdf2Key(secretStr, saltBytes){
+  const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(secretStr), {name:'PBKDF2'}, false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({name:'PBKDF2', salt: saltBytes, iterations: PBKDF2_ITER, hash:'SHA-256'}, material, 256);
+  return new Uint8Array(bits);
+}
+async function aesEncrypt(keyBytes, plainBytes){
+  const key = await crypto.subtle.importKey('raw', keyBytes, 'AES-GCM', false, ['encrypt']);
+  const iv = await randomBytes(12);
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, plainBytes);
+  return { iv: bytesToHex(iv), ct: bytesToHex(new Uint8Array(ct)) };
+}
+async function aesDecrypt(keyBytes, ivHex, ctHex){
+  const key = await crypto.subtle.importKey('raw', keyBytes, 'AES-GCM', false, ['decrypt']);
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv: hexToBytes(ivHex)}, key, hexToBytes(ctHex));
+  return new Uint8Array(pt);
+}
+
+async function fetchAccountRecords(username){
+  const k = await keysForUsername(username);
+  try{
+    const events = await pool.querySync(RELAYS, {kinds:[ACCOUNT_KIND], authors:[k.pubkey], "#t":[APP_NAMESPACE], limit:500}, {maxWait:8000});
+    return (events||[]).filter(ev=>{ try{ return verifyEvent(ev); }catch(e){ return false; } });
+  }catch(e){ return []; }
+}
+function parseAccountEvents(events){
+  const parsed = events.map(e=>{ try{ return {ev:e, data: JSON.parse(e.content)}; }catch(err){ return null; } }).filter(Boolean);
+  parsed.sort((a,b)=> a.ev.created_at - b.ev.created_at || (a.ev.id < b.ev.id ? -1 : 1));
+  const genesis = parsed.find(p=>p.data.type==='create') || null;
+  return { genesis, all: parsed };
+}
+async function createAccount(username, password, question, answer){
+  let identitySecretKey, pubkey;
+  for(let tries=0; tries<3; tries++){
+    identitySecretKey = await randomBytes(32);
+    try{ pubkey = getPublicKey(identitySecretKey); break; }catch(e){ pubkey=null; }
+  }
+  const pwSalt = await randomBytes(16), ansSalt = await randomBytes(16);
+  const pwKey = await pbkdf2Key(password, pwSalt);
+  const ansKey = await pbkdf2Key(normUser(answer), ansSalt);
+  const encByPassword = await aesEncrypt(pwKey, identitySecretKey);
+  const encByAnswer = await aesEncrypt(ansKey, identitySecretKey);
+  const content = JSON.stringify({
+    type:'create', username: normUser(username), question,
+    passwordHash: await sha256Hex('uoogle-pw:'+password),
+    answerHash: await sha256Hex('uoogle-ans:'+normUser(answer)),
+    identityPubkey: pubkey,
+    encByPassword: {salt:bytesToHex(pwSalt), iv:encByPassword.iv, ct:encByPassword.ct},
+    encByAnswer: {salt:bytesToHex(ansSalt), iv:encByAnswer.iv, ct:encByAnswer.ct}
+  });
+  const k = await keysForUsername(username);
+  const evt = { kind: ACCOUNT_KIND, created_at:Math.floor(Date.now()/1000), tags:[["t",APP_NAMESPACE],["u",normUser(username)]], content, pubkey:k.pubkey };
+  const item = publishEverywhere(finalizeEvent(evt, k.secretKey));
+  const acked = await waitForAck(item, 15000);
+  return { secretKey: identitySecretKey, pubkey, tag: k.tag, username: normUser(username), acked };
+}
+async function tryLoginWithPassword(username, password){
+  const {genesis, all} = parseAccountEvents(await fetchAccountRecords(username));
+  if(!genesis) return {ok:false, reason:'notfound'};
+  for(const c of all.slice().reverse()){
+    if(!c.data.encByPassword) continue;
+    try{
+      const key = await pbkdf2Key(password, hexToBytes(c.data.encByPassword.salt));
+      const secretKey = await aesDecrypt(key, c.data.encByPassword.iv, c.data.encByPassword.ct);
+      const pubkey = getPublicKey(secretKey);
+      if(pubkey === genesis.data.identityPubkey){
+        const kd = await keysForUsername(username);
+        return {ok:true, secretKey, pubkey, tag:kd.tag, username:normUser(username)};
+      }
+    }catch(e){}
+  }
+  return {ok:false, reason:'badpass'};
+}
+async function tryLoginWithAnswer(username, answer){
+  const {genesis, all} = parseAccountEvents(await fetchAccountRecords(username));
+  if(!genesis) return {ok:false};
+  for(const c of all.slice().reverse()){
+    if(!c.data.encByAnswer) continue;
+    try{
+      const key = await pbkdf2Key(normUser(answer), hexToBytes(c.data.encByAnswer.salt));
+      const secretKey = await aesDecrypt(key, c.data.encByAnswer.iv, c.data.encByAnswer.ct);
+      const pubkey = getPublicKey(secretKey);
+      if(pubkey === genesis.data.identityPubkey) return {ok:true, secretKey};
+    }catch(e){}
+  }
+  return {ok:false};
+}
+async function publishPasswordUpdate(username, identitySecretKey, newPassword){
+  const pwSalt = await randomBytes(16);
+  const pwKey = await pbkdf2Key(newPassword, pwSalt);
+  const enc = await aesEncrypt(pwKey, identitySecretKey);
+  const content = JSON.stringify({ type:'update', username:normUser(username), passwordHash: await sha256Hex('uoogle-pw:'+newPassword), encByPassword:{salt:bytesToHex(pwSalt), iv:enc.iv, ct:enc.ct} });
+  const k = await keysForUsername(username);
+  const evt = { kind: ACCOUNT_KIND, created_at:Math.floor(Date.now()/1000), tags:[["t",APP_NAMESPACE],["u",normUser(username)]], content, pubkey:k.pubkey };
+  const item = publishEverywhere(finalizeEvent(evt, k.secretKey));
+  await waitForAck(item, 15000);
+}
+async function changePassword(oldPassword, newPassword){
+  if(!ME) return {ok:false};
+  const check = await tryLoginWithPassword(ME.username, oldPassword);
+  if(!check.ok || check.pubkey !== ME.pubkey) return {ok:false};
+  await publishPasswordUpdate(ME.username, ME.secretKey, newPassword);
+  return {ok:true};
+}
+
+let ME = null;
+let READONLY = true;
+
+const relayStatus = {}; RELAYS.forEach(r=>relayStatus[r]=false);
+const relayFails = {}; RELAYS.forEach(r=>relayFails[r]=0);
+function renderStatus(){
+  const n = Object.values(relayStatus).filter(Boolean).length;
+  const t = n===0 ? 'No relays are currently reachable.' : (n + ' of ' + RELAYS.length + ' relays connected');
+  const dot = document.getElementById('statusDot');
+  if(dot){ dot.classList.toggle('down', n===0); dot.title = t; }
+  const rt = document.getElementById('relayText');
+  if(rt) rt.textContent = t;
+}
+async function connectRelay(url){
+  try{
+    const r = await pool.ensureRelay(url);
+    relayStatus[url]=true; relayFails[url]=0;
+    r.onclose = ()=>{ relayStatus[url]=false; renderStatus(); scheduleReconnect(url); };
+  }catch(e){ relayStatus[url]=false; scheduleReconnect(url); }
+  renderStatus();
+}
+function scheduleReconnect(url){
+  relayFails[url]++;
+  setTimeout(()=>connectRelay(url), Math.min(30000, 1000*Math.pow(2, relayFails[url])));
+}
+RELAYS.forEach(connectRelay);
+
+function validImageUrl(u){
+  try{ const p = new URL(u); return p.protocol==='https:' && p.hostname===IMG_HOST; }catch(e){ return false; }
+}
+const VIDEO_EXTS = ['.mp4','.webm','.mov','.m4v','.ogv'];
+function validVideoUrl(u){
+  try{
+    const p = new URL(u);
+    if(p.protocol!=='https:' || p.hostname!==IMG_HOST) return false;
+    const path = p.pathname.toLowerCase();
+    return VIDEO_EXTS.some(x=>path.endsWith(x));
+  }catch(e){ return false; }
+}
+function isSquareImage(url){
+  return new Promise(resolve=>{
+    const img = new Image();
+    img.onload = ()=>resolve(img.naturalWidth>0 && img.naturalWidth===img.naturalHeight);
+    img.onerror = ()=>resolve(false);
+    img.src = url;
+  });
+}
+
+const $ = (id)=>document.getElementById(id);
+const videos = new Map();
+const comments = new Map();
+const reactions = new Map();
+const viewsMap = new Map();
+const profiles = new Map();
+const subsByUser = new Map();
+const deletedBy = new Map();
+let subs = [];
+let autoplay = lsGet('gt_autoplay', true) !== false;
+
+function makeAnon(){
+  let hex = lsGet('gt_anon', null);
+  if(typeof hex==='string' && hex.length===64){
+    try{ const sk = hexToBytes(hex); return {sk, pk:getPublicKey(sk)}; }catch(e){}
+  }
+  for(let i=0;i<5;i++){
+    const sk = new Uint8Array(32); crypto.getRandomValues(sk);
+    try{ const pk = getPublicKey(sk); lsSet('gt_anon', bytesToHex(sk)); return {sk, pk}; }catch(e){}
+  }
+  return null;
+}
+const anon = makeAnon();
+
+function el(tag, attrs, text){
+  const n = document.createElement(tag);
+  if(attrs) for(const k in attrs){ if(k==='class') n.className=attrs[k]; else n.setAttribute(k,attrs[k]); }
+  if(text!==undefined) n.textContent = text;
+  return n;
+}
+const ICON_PATHS = {
+  search:'M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5L20.49 19l-5-5zM9.5 14A4.5 4.5 0 1 1 9.5 5a4.5 4.5 0 0 1 0 9z',
+  menu:'M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z',
+  upload:'M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z',
+  home:'M12 3.1 3 10.5V21h6v-6h6v6h6V10.5z',
+  trending:'M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67z',
+  subs:'M20 8H4V6h16v2zm-2-6H6v2h12V2zm4 10v8c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2v-8c0-1.1.9-2 2-2h16c1.1 0 2 .9 2 2zm-6 4l-6-3.27v6.53L16 16z',
+  person:'M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2.5c-4.42 0-9 2.19-9 5V22h18v-2.5c0-2.81-4.58-5-9-5z',
+  thumb:'M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z',
+  share:'M14 9V5l7 7-7 7v-4.1c-5 0-8.5 1.6-11 5.1 1-5 4-10 11-11z'
+};
+function iconEl(name, size, cls){
+  const NS='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(NS,'svg');
+  svg.setAttribute('viewBox','0 0 24 24');
+  svg.setAttribute('width', size||20); svg.setAttribute('height', size||20);
+  svg.setAttribute('fill','currentColor');
+  svg.style.flexShrink='0';
+  if(cls) svg.setAttribute('class', cls);
+  const p=document.createElementNS(NS,'path'); p.setAttribute('d', ICON_PATHS[name]);
+  svg.appendChild(p);
+  return svg;
+}
+function initIcons(){ document.querySelectorAll('[data-icon]').forEach(n=>{ n.textContent=''; n.appendChild(iconEl(n.dataset.icon, 22)); }); }
+
+function nowSec(){ return Math.floor(Date.now()/1000); }
+function fmtNum(n){ return Number(n||0).toLocaleString(); }
+function fmtViews(n){ return fmtNum(n) + (n===1?' view':' views'); }
+function fmtDur(s){
+  if(!isFinite(s) || s<=0) return '';
+  s = Math.round(s);
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+  return (h? h+':'+String(m).padStart(2,'0') : m) + ':' + String(sec).padStart(2,'0');
+}
+function timeAgo(t){
+  const d = nowSec() - t;
+  if(d<60) return 'just now';
+  const units = [[31536000,'year'],[2592000,'month'],[604800,'week'],[86400,'day'],[3600,'hour'],[60,'minute']];
+  for(const [sec,name] of units){ if(d>=sec){ const n=Math.floor(d/sec); return n+' '+name+(n>1?'s':'')+' ago'; } }
+  return 'just now';
+}
+function fmtDate(t){ return new Date(t*1000).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}); }
+function sortNewest(a,b){ return b.created_at-a.created_at || (a.id<b.id?1:-1); }
+
+function ensureProfile(pk, username, tag){
+  if(!profiles.has(pk)) profiles.set(pk, {username, tag, displayName:username, bio:'', avatar:'', banner:''});
+}
+function chanName(pk){ const p=profiles.get(pk); return p ? (p.displayName||p.username) : pk.slice(0,8); }
+function avatarEl(pk, size){
+  const p = profiles.get(pk);
+  const box = el('div',{class:'avatar'});
+  if(size){ box.style.width=size+'px'; box.style.height=size+'px'; }
+  if(p && p.avatar) box.appendChild(el('img',{src:p.avatar, alt:''}));
+  else box.appendChild(iconEl('person', Math.round((size||32)*0.65)));
+  return box;
+}
+function chanLink(pk, cls){ const a = el('a',{href:'#/channel/'+pk, class:cls||''}, chanName(pk)); return a; }
+
+function stats(id){
+  const r = reactions.get(id) || new Map();
+  let likes=0, dislikes=0;
+  r.forEach(x=>{ if(x.type==='+') likes++; else if(x.type==='-') dislikes++; });
+  let cc = 0; comments.forEach(c=>{ if(c.video===id) cc++; });
+  return {likes, dislikes, views:(viewsMap.get(id)||new Set()).size, comments:cc};
+}
+function subCount(pk){ let n=0; subsByUser.forEach(v=>{ if(v.list.includes(pk)) n++; }); return n; }
+function latest(){ return Array.from(videos.values()).sort(sortNewest); }
+function recommended(excludeId){
+  const now = nowSec();
+  return Array.from(videos.values()).filter(v=>v.id!==excludeId).map(v=>{
+    const s = stats(v.id);
+    const age = (now - v.created_at)/86400;
+    return {v, score: s.likes*2 + s.views + s.comments*2 + Math.max(0,14-age)*3 + (subs.includes(v.pubkey)?15:0)};
+  }).sort((a,b)=>b.score-a.score || sortNewest(a.v,b.v)).map(x=>x.v);
+}
+function trendingList(){
+  return Array.from(videos.values()).map(v=>{ const s=stats(v.id); return {v, score:s.likes*3+s.views+s.comments*2}; }).sort((a,b)=>b.score-a.score || sortNewest(a.v,b.v)).map(x=>x.v);
+}
+function channelsByRecent(){
+  const seen = []; latest().forEach(v=>{ if(!seen.includes(v.pubkey)) seen.push(v.pubkey); }); return seen;
+}
+function channelVideos(pk){ return latest().filter(v=>v.pubkey===pk); }
+
+function thumbEl(v){
+  const box = el('div',{class:'thumb'});
+  const vid = el('video',{src:v.url+'#t=0.5', preload:'metadata', playsinline:''});
+  vid.muted = true;
+  const dur = el('span',{class:'dur'});
+  vid.addEventListener('loadedmetadata', ()=>{ dur.textContent = fmtDur(vid.duration); });
+  vid.addEventListener('error', ()=>box.classList.add('broken'));
+  box.appendChild(vid); box.appendChild(dur);
+  return box;
+}
+function metaLine(v){
+  const s = stats(v.id);
+  const d = el('div',{class:'vmeta'});
+  d.appendChild(chanLink(v.pubkey));
+  d.appendChild(el('div',{}, fmtViews(s.views) + ' \u2022 ' + timeAgo(v.created_at)));
+  return d;
+}
+function videoCard(v){
+  const c = el('div');
+  const a = el('a',{href:'#/watch/'+v.id}); a.appendChild(thumbEl(v)); a.appendChild(el('div',{class:'vtitle'}, v.title));
+  c.appendChild(a); c.appendChild(metaLine(v));
+  return c;
+}
+function sideCard(v, cls){
+  const c = el('div',{class:cls||'sideCard'});
+  const a = el('a',{href:'#/watch/'+v.id}); a.appendChild(thumbEl(v));
+  const info = el('div',{style:'min-width:0'});
+  const t = el('a',{href:'#/watch/'+v.id, class:'vtitle'}, v.title); t.style.display='block';
+  info.appendChild(t); info.appendChild(metaLine(v));
+  c.appendChild(a); c.appendChild(info);
+  return c;
+}
+function subBox(pk){
+  const box = el('div',{class:'subbox'});
+  const on = subs.includes(pk);
+  const b = el('button',{class:'subbtn'+(on?' on':''), type:'button'}, on?'Subscribed':'Subscribe');
+  b.onclick = ()=>toggleSub(pk);
+  box.appendChild(b);
+  box.appendChild(el('div',{class:'subcount'}, fmtNum(subCount(pk))));
+  return box;
+}
+function emptyState(){
+  const d = el('div',{style:'text-align:center;padding:50px 0'});
+  d.appendChild(el('h2',{style:'font-weight:400'},'No videos yet'));
+  d.appendChild(el('p',{class:'muted'},'Be the first to upload one.'));
+  const b = el('button',{class:'gbtn red', type:'button'},'Upload'); b.onclick = ()=>gotoUpload();
+  d.appendChild(b);
+  return d;
+}
+function tabsBar(active){
+  const bar = el('div',{class:'tabsbar'});
+  [['home','Home','#/'],['trending','Trending','#/trending']].forEach(([k,l,h])=>{
+    const a = el('a',{href:h, class:k===active?'active':''}, l); bar.appendChild(a);
+  });
+  return bar;
+}
+function channelRow(pk){
+  const sec = el('div',{class:'section'});
+  const head = el('div',{class:'sechead'});
+  head.appendChild(avatarEl(pk, 40));
+  const h = el('h2'); h.appendChild(chanLink(pk)); head.appendChild(h);
+  head.appendChild(el('span',{class:'rec'},'Recommended channel'));
+  head.appendChild(subBox(pk));
+  sec.appendChild(head);
+  const g = el('div',{class:'grid4'});
+  channelVideos(pk).slice(0,4).forEach(v=>g.appendChild(videoCard(v)));
+  sec.appendChild(g);
+  return sec;
+}
+
+function pageHome(page){
+  page.appendChild(tabsBar('home'));
+  const box = el('div',{class:'whitebox'});
+  const rec = recommended();
+  if(rec.length===0){ box.appendChild(emptyState()); page.appendChild(box); return; }
+  const top = el('div',{class:'featured'});
+  const big = el('div',{class:'featBig'});
+  const a = el('a',{href:'#/watch/'+rec[0].id}); a.appendChild(thumbEl(rec[0])); big.appendChild(a);
+  big.appendChild(el('a',{href:'#/watch/'+rec[0].id, class:'vtitle', style:'display:block'}, rec[0].title));
+  big.appendChild(metaLine(rec[0]));
+  top.appendChild(big);
+  const side = el('div',{class:'featSide'});
+  rec.slice(1,4).forEach(v=>side.appendChild(sideCard(v)));
+  top.appendChild(side);
+  box.appendChild(top);
+  channelsByRecent().slice(0,4).forEach(pk=>box.appendChild(channelRow(pk)));
+  const rest = rec.slice(4);
+  if(rest.length){
+    const sec = el('div',{class:'section'});
+    const head = el('div',{class:'sechead'}); head.appendChild(el('h2',{},'Recommended from the latest uploads')); sec.appendChild(head);
+    const g = el('div',{class:'grid4'}); rest.slice(0,12).forEach(v=>g.appendChild(videoCard(v))); sec.appendChild(g);
+    box.appendChild(sec);
+  }
+  page.appendChild(box);
+}
+function pageTrending(page){
+  page.appendChild(tabsBar('trending'));
+  const box = el('div',{class:'whitebox'});
+  const list = trendingList();
+  if(list.length===0){ box.appendChild(emptyState()); }
+  else { const g = el('div',{class:'grid4'}); list.slice(0,40).forEach(v=>g.appendChild(videoCard(v))); box.appendChild(g); }
+  page.appendChild(box);
+}
+function pageSubs(page){
+  const box = el('div',{class:'whitebox', style:'margin-top:20px'});
+  box.appendChild(el('h2',{style:'font-weight:400;margin-top:0'},'Subscriptions'));
+  if(!ME){ box.appendChild(el('p',{class:'muted'},'Sign in to see videos from channels you subscribe to.')); const b=el('button',{class:'gbtn blue',type:'button'},'Sign in'); b.onclick=openLogin; box.appendChild(b); page.appendChild(box); return; }
+  const list = latest().filter(v=>subs.includes(v.pubkey));
+  if(list.length===0) box.appendChild(el('p',{class:'muted'},'Nothing here yet. Subscribe to channels and their latest videos will show up.'));
+  else { const g = el('div',{class:'grid4'}); list.forEach(v=>g.appendChild(videoCard(v))); box.appendChild(g); }
+  page.appendChild(box);
+}
+function pageResults(page, r){
+  const q = (r.params.get('q')||'').trim().toLowerCase();
+  const box = el('div',{class:'whitebox', style:'margin-top:20px'});
+  box.appendChild(el('h2',{style:'font-weight:400;margin-top:0'}, q ? 'Results for "'+q+'"' : 'Search'));
+  const list = latest().filter(v=> q && (v.title.toLowerCase().includes(q) || v.desc.toLowerCase().includes(q) || chanName(v.pubkey).toLowerCase().includes(q) || v.id.startsWith(q)));
+  if(list.length===0) box.appendChild(el('p',{class:'muted'}, q ? 'No videos found.' : 'Type something in the search box.'));
+  list.forEach(v=>{
+    const row = el('div',{class:'result'});
+    const a = el('a',{href:'#/watch/'+v.id}); a.appendChild(thumbEl(v)); row.appendChild(a);
+    const info = el('div',{style:'min-width:0'});
+    info.appendChild(el('a',{href:'#/watch/'+v.id, class:'vtitle', style:'display:block'}, v.title));
+    info.appendChild(metaLine(v));
+    info.appendChild(el('div',{class:'vmeta', style:'margin-top:6px'}, v.desc.slice(0,180)));
+    row.appendChild(info); box.appendChild(row);
+  });
+  page.appendChild(box);
+}
+
+let watchState = null;
+function pageWatch(page, r){
+  const id = r.arg;
+  const v = videos.get(id);
+  watchState = null;
+  if(!v){ page.appendChild(el('div',{class:'whitebox pad', style:'margin-top:20px'}, 'Loading video from relays…')); watchState = {id, built:false}; return; }
+  const wrap = el('div',{class:'watch'});
+  const main = el('div',{class:'watchMain'});
+  const player = el('video',{class:'player', controls:'', playsinline:'', src:v.url});
+  player.autoplay = true;
+  player.addEventListener('ended', ()=>{ if(autoplay){ const n = recommended(v.id)[0]; if(n) location.hash = '#/watch/'+n.id; } });
+  player.addEventListener('play', ()=>recordView(v.id), {once:true});
+  main.appendChild(player);
+  const meta = el('div',{class:'wcard'});
+  const descBox = el('div',{class:'wcard'});
+  const commentsBox = el('div',{class:'wcard comments'});
+  const commentsList = el('div');
+  const up = el('div',{class:'upNext'});
+  main.appendChild(meta); main.appendChild(descBox); main.appendChild(commentsBox);
+  wrap.appendChild(main); wrap.appendChild(up);
+  page.appendChild(wrap);
+  watchState = {id, built:true, meta, descBox, commentsBox, commentsList, up, expanded:false, header:null};
+  buildComposer(commentsBox, commentsList, v);
+  refreshWatch();
+}
+function buildMeta(v, meta){
+  meta.textContent = '';
+  const s = stats(v.id);
+  meta.appendChild(el('h1',{class:'wtitle'}, v.title));
+  const pr = progressMap.get(v.id);
+  if(pr){
+    const left = pendingFor(pr).length;
+    meta.appendChild(el('div',{class:'small', style:'margin:-6px 0 10px'}, 'Published to ' + pr.done.length + ' of ' + RELAYS.length + ' relays' + (left ? '. The rest keep retrying in the background.' : '.')));
+  }
+  const row = el('div',{class:'wrow'});
+  const av = el('a',{href:'#/channel/'+v.pubkey}); av.appendChild(avatarEl(v.pubkey, 48)); row.appendChild(av);
+  const c = el('div');
+  c.appendChild(chanLink(v.pubkey,'cname'));
+  const sb = subBox(v.pubkey); sb.style.marginLeft='0'; sb.style.marginTop='6px'; c.appendChild(sb);
+  row.appendChild(c);
+  const st = el('div',{class:'wstats'});
+  st.appendChild(el('div',{class:'viewsBig'}, fmtViews(s.views)));
+  const bar = el('div',{class:'likebar'}); const tot = s.likes+s.dislikes;
+  const fill = el('div'); fill.style.width = (tot? Math.round(s.likes/tot*100) : 0) + '%'; bar.appendChild(fill);
+  st.appendChild(bar);
+  st.appendChild(el('div',{class:'small'}, fmtNum(s.likes)+' likes \u2022 '+fmtNum(s.dislikes)+' dislikes'));
+  row.appendChild(st);
+  meta.appendChild(row);
+  const mine = myReaction(v.id);
+  const acts = el('div',{class:'actions'});
+  const lb = el('button',{class:'abtn'+(mine==='+'?' on':''), type:'button'}); lb.appendChild(iconEl('thumb',18)); lb.appendChild(document.createTextNode('Like'));
+  lb.onclick = ()=>react(v.id, mine==='+'?'0':'+');
+  const db = el('button',{class:'abtn'+(mine==='-'?' on':''), type:'button'}); db.appendChild(iconEl('thumb',18,'flip')); db.appendChild(document.createTextNode('Dislike'));
+  db.onclick = ()=>react(v.id, mine==='-'?'0':'-');
+  const sh = el('button',{class:'abtn', type:'button'}); sh.appendChild(iconEl('share',18)); sh.appendChild(document.createTextNode('Share'));
+  sh.onclick = async ()=>{
+    const link = location.href.split('#')[0] + '#/watch/' + v.id;
+    try{ await navigator.clipboard.writeText(link); sh.lastChild.textContent = 'Link copied'; }
+    catch(e){ prompt('Copy this link:', link); }
+  };
+  acts.appendChild(lb); acts.appendChild(db); acts.appendChild(sh);
+  if(ME && ME.pubkey===v.pubkey){
+    const del = el('button',{class:'abtn', type:'button'}, 'Delete');
+    del.onclick = ()=>{ if(confirm('Delete this video?')) deleteEvent(v.id); };
+    acts.appendChild(del);
+  }
+  const sw = el('span',{class:'switch'+(autoplay?' on':''), style:'margin-left:auto'});
+  sw.appendChild(document.createTextNode('Autoplay')); sw.appendChild(el('i'));
+  sw.onclick = ()=>{ autoplay = !autoplay; lsSet('gt_autoplay', autoplay); sw.classList.toggle('on', autoplay); };
+  acts.appendChild(sw);
+  meta.appendChild(acts);
+}
+function buildDesc(v, box, state){
+  box.textContent = '';
+  box.appendChild(el('b',{}, 'Published on ' + fmtDate(v.created_at)));
+  const d = el('div',{class:'desc'+(v.desc.length>300 && !state.expanded?' clamp':'')}, v.desc || 'No description.');
+  box.appendChild(d);
+  if(v.desc.length>300){
+    const b = el('button',{class:'linkbtn', type:'button', style:'display:block;margin:8px auto 0;text-transform:uppercase'}, state.expanded?'Show less':'Show more');
+    b.onclick = ()=>{ state.expanded = !state.expanded; buildDesc(v, box, state); };
+    box.appendChild(b);
+  }
+}
+function commentsFor(parent){ return Array.from(comments.values()).filter(c=>c.parent===parent).sort((a,b)=>a.created_at-b.created_at); }
+function buildComment(c){
+  const row = el('div',{class:'comment'});
+  row.appendChild(avatarEl(c.pubkey, 40));
+  const b = el('div',{style:'flex:1;min-width:0'});
+  const head = el('div',{class:'chead'});
+  const nm = el('b',{}, chanName(c.pubkey)); nm.onclick = ()=>{ location.hash = '#/channel/'+c.pubkey; };
+  head.appendChild(nm); head.appendChild(el('span',{class:'small'}, timeAgo(c.created_at)));
+  b.appendChild(head);
+  b.appendChild(el('div',{class:'ctext'}, c.text));
+  const acts = el('div',{class:'cacts'});
+  const rb = el('button',{class:'linkbtn', type:'button'}, 'Reply');
+  const slot = el('div');
+  rb.onclick = ()=>{
+    if(!ME){ openLogin(); return; }
+    if(slot.firstChild){ slot.textContent=''; return; }
+    const ta = el('textarea',{rows:'2', placeholder:'Add a public reply...'});
+    const go = el('button',{class:'gbtn blue', type:'button', style:'margin-top:6px'}, 'Reply');
+    go.onclick = async ()=>{ const ok = await publishComment(c.video, c.id, ta.value); if(ok) slot.textContent=''; };
+    slot.appendChild(ta); slot.appendChild(go);
+  };
+  acts.appendChild(rb);
+  if(ME && ME.pubkey===c.pubkey){
+    const del = el('button',{class:'linkbtn', type:'button'}, 'Delete');
+    del.onclick = ()=>{ if(confirm('Delete this comment?')) deleteEvent(c.id); };
+    acts.appendChild(del);
+  }
+  b.appendChild(acts); b.appendChild(slot);
+  const kids = commentsFor(c.id);
+  if(kids.length){ const w = el('div',{class:'creplies'}); kids.forEach(k=>w.appendChild(buildComment(k))); b.appendChild(w); }
+  row.appendChild(b);
+  return row;
+}
+function buildCommentList(v, list, headerEl){
+  list.textContent = '';
+  headerEl.textContent = 'Comments \u2022 ' + stats(v.id).comments;
+  const top = commentsFor(v.id).sort((a,b)=>b.created_at-a.created_at);
+  if(top.length===0) list.appendChild(el('div',{class:'small'},'No comments yet.'));
+  top.forEach(c=>list.appendChild(buildComment(c)));
+}
+function buildComposer(box, list, v){
+  const h = el('h3'); box.appendChild(h);
+  const cb = el('div',{class:'cbox'});
+  cb.appendChild(ME ? avatarEl(ME.pubkey, 48) : avatarEl('', 48));
+  const cin = el('div',{class:'cin'});
+  const ta = el('textarea',{rows:'2', placeholder: ME ? 'Add a public comment...' : 'Sign in to add a public comment'});
+  if(!ME) ta.onfocus = ()=>{ ta.blur(); openLogin(); };
+  cin.appendChild(ta);
+  const bw = el('div');
+  const go = el('button',{class:'gbtn blue', type:'button'}, 'Comment');
+  go.onclick = async ()=>{ if(!ME){ openLogin(); return; } const ok = await publishComment(v.id, v.id, ta.value); if(ok) ta.value=''; };
+  bw.appendChild(go); cin.appendChild(bw);
+  cb.appendChild(cin); box.appendChild(cb); box.appendChild(list);
+  watchState.header = h;
+}
+function buildUpNext(v, up){
+  up.textContent = '';
+  const head = el('div',{style:'display:flex;justify-content:space-between;margin-bottom:14px'});
+  head.appendChild(el('b',{}, 'Up next'));
+  const sw = el('span',{class:'switch'+(autoplay?' on':'')}); sw.appendChild(document.createTextNode('Autoplay')); sw.appendChild(el('i'));
+  sw.onclick = ()=>{ autoplay = !autoplay; lsSet('gt_autoplay', autoplay); sw.classList.toggle('on', autoplay); };
+  head.appendChild(sw); up.appendChild(head);
+  const list = recommended(v.id).slice(0,14);
+  if(list.length===0) up.appendChild(el('div',{class:'small'},'No other videos yet.'));
+  list.forEach(x=>up.appendChild(sideCard(x,'upItem')));
+}
+function refreshWatch(){
+  const ws = watchState; if(!ws) return;
+  const v = videos.get(ws.id);
+  if(!ws.built){ if(v) renderRoute(); return; }
+  if(!v){ renderRoute(); return; }
+  buildMeta(v, ws.meta);
+  buildDesc(v, ws.descBox, ws);
+  buildUpNext(v, ws.up);
+  const active = document.activeElement;
+  if(!(active && ws.commentsBox.contains(active) && active.tagName==='TEXTAREA' && active.value)) buildCommentList(v, ws.commentsList, ws.header);
+  else ws.header.textContent = 'Comments \u2022 ' + stats(v.id).comments;
+}
+
+function pageUpload(page){
+  if(!ME){
+    const box = el('div',{class:'whitebox', style:'margin-top:20px;text-align:center'});
+    box.appendChild(el('h2',{style:'font-weight:400'},'Sign in to upload'));
+    const b = el('button',{class:'gbtn blue', type:'button'},'Sign in'); b.onclick = openLogin; box.appendChild(b);
+    page.appendChild(box); return;
+  }
+  const wrap = el('div',{class:'upload'});
+  const dz = el('div',{class:'dropzone'});
+  const big = el('div',{class:'bigup'}); big.appendChild(iconEl('upload', 60)); dz.appendChild(big);
+  dz.appendChild(el('h2',{},'Select files to upload'));
+  const cat = el('button',{class:'gbtn green', type:'button', style:'height:38px;font-size:15px'}, 'Open Catbox to upload your video');
+  cat.onclick = ()=>window.open('https://catbox.moe/','_blank');
+  dz.appendChild(cat);
+  dz.appendChild(el('p',{class:'muted'},'Upload your video file on Catbox, then paste or drop the files.catbox.moe link here.'));
+  const urlIn = el('input',{type:'text', placeholder:'https://files.catbox.moe/example.mp4'});
+  urlIn.style.maxWidth='520px';
+  dz.appendChild(urlIn);
+  const form = el('div',{class:'upForm hidden'});
+  const preview = el('div',{class:'upPreview'});
+  form.appendChild(preview);
+  form.appendChild(el('label',{},'Title'));
+  const title = el('input',{type:'text', maxlength:'100', placeholder:'Title'});
+  form.appendChild(title);
+  form.appendChild(el('label',{},'Description'));
+  const desc = el('textarea',{rows:'5', maxlength:'5000', placeholder:'Description'});
+  form.appendChild(desc);
+  form.appendChild(el('label',{},'Privacy'));
+  form.appendChild(el('div',{class:'small'},'Public - everyone on the relays can see this video'));
+  const msg = el('div',{class:'err'});
+  const pub = el('button',{class:'gbtn red', type:'button', style:'margin-top:16px'}, 'Publish');
+  form.appendChild(pub); form.appendChild(msg);
+  dz.appendChild(form);
+  const check = ()=>{
+    const u = urlIn.value.trim();
+    preview.textContent = ''; msg.textContent = '';
+    if(!u){ form.classList.add('hidden'); return; }
+    if(!validVideoUrl(u)){ form.classList.add('hidden'); msg.textContent=''; const e = el('div',{class:'err'},'Link must be https://files.catbox.moe/ ending in .mp4, .webm, .mov, .m4v or .ogv'); preview.appendChild(e); form.classList.remove('hidden'); pub.disabled = true; return; }
+    pub.disabled = false; form.classList.remove('hidden');
+    const pv = el('video',{class:'player', controls:'', preload:'metadata', src:u, playsinline:''});
+    preview.appendChild(pv);
+  };
+  urlIn.oninput = check;
+  dz.addEventListener('dragover', (e)=>{ e.preventDefault(); dz.classList.add('over'); });
+  dz.addEventListener('dragleave', ()=>dz.classList.remove('over'));
+  dz.addEventListener('drop', (e)=>{
+    e.preventDefault(); dz.classList.remove('over');
+    const txt = (e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain') || '').trim();
+    if(txt){ urlIn.value = txt.split(/\s+/)[0]; check(); }
+    else msg.textContent = 'Drop a files.catbox.moe link. Videos are uploaded on Catbox, not here.';
+  });
+  pub.onclick = async ()=>{
+    msg.textContent = '';
+    pub.disabled = true;
+    const r = await publishVideo(title.value, desc.value, urlIn.value.trim(), msg);
+    if(!r){ pub.disabled = false; return; }
+    msg.style.color = '#555';
+    msg.textContent = 'Sending to ' + RELAYS.length + ' relays...';
+    await waitForAck(r.item, 15000);
+    location.hash = '#/watch/' + r.id;
+  };
+  wrap.appendChild(dz);
+  const side = el('div',{class:'upSide'});
+  side.appendChild(el('h4',{},'HELP AND SUGGESTIONS'));
+  side.appendChild(el('p',{},'Videos are hosted on Catbox.'));
+  side.appendChild(el('p',{},'Thumbnails are generated automatically from the video itself.'));
+  side.appendChild(el('p',{},'Accepted links: https://files.catbox.moe/ ending in .mp4, .webm, .mov, .m4v or .ogv.'));
+  wrap.appendChild(side);
+  page.appendChild(wrap);
+}
+
+function pageChannel(page, r){
+  const pk = r.arg;
+  if(!pk){ page.appendChild(el('div',{class:'whitebox pad'},'Channel not found.')); return; }
+  const p = profiles.get(pk) || {displayName:pk.slice(0,8), bio:'', avatar:'', banner:''};
+  const tab = r.sub || 'home';
+  const banner = el('div',{class:'chBanner'});
+  if(p.banner) banner.appendChild(el('img',{src:p.banner, alt:''}));
+  const icon = el('div',{class:'chIcon'});
+  if(p.avatar) icon.appendChild(el('img',{src:p.avatar, alt:''})); else icon.appendChild(iconEl('person',60));
+  banner.appendChild(icon);
+  const head = el('div',{class:'chHead'});
+  const row = el('div',{class:'row1'});
+  row.appendChild(el('h1',{}, chanName(pk)));
+  row.appendChild(subBox(pk));
+  head.appendChild(row);
+  const tabs = el('div',{class:'chTabs'});
+  [['home','Home'],['videos','Videos'],['about','About']].forEach(([k,l])=>tabs.appendChild(el('a',{href:'#/channel/'+pk+(k==='home'?'':'/'+k), class:k===tab?'active':''}, l)));
+  head.appendChild(tabs);
+  const body = el('div',{class:'chBody'});
+  const main = el('div',{class:'chMain'});
+  const vids = channelVideos(pk);
+  if(tab==='home'){
+    if(vids.length===0) main.appendChild(el('div',{class:'muted'}, 'This channel has no videos yet.'));
+    else {
+      main.appendChild(el('h3',{style:'margin-top:0;font-weight:500'},'What to watch next'));
+      const top = el('div',{class:'featured'});
+      const big = el('div',{class:'featBig'});
+      const a = el('a',{href:'#/watch/'+vids[0].id}); a.appendChild(thumbEl(vids[0])); big.appendChild(a);
+      top.appendChild(big);
+      const info = el('div',{class:'featSide'});
+      info.appendChild(el('a',{href:'#/watch/'+vids[0].id, class:'vtitle', style:'display:block;margin-top:0'}, vids[0].title));
+      info.appendChild(metaLine(vids[0]));
+      vids.slice(1,4).forEach(v=>info.appendChild(sideCard(v)));
+      top.appendChild(info);
+      main.appendChild(top);
+      const pop = vids.slice().sort((a,b)=>stats(b.id).views-stats(a.id).views).slice(0,5);
+      main.appendChild(el('h3',{style:'font-weight:500'},'Popular uploads'));
+      const g = el('div',{class:'grid5'}); pop.forEach(v=>g.appendChild(videoCard(v))); main.appendChild(g);
+      main.appendChild(el('h3',{style:'font-weight:500;margin-top:24px'},'Uploads'));
+      const g2 = el('div',{class:'grid5'}); vids.forEach(v=>g2.appendChild(videoCard(v))); main.appendChild(g2);
+    }
+  } else if(tab==='videos'){
+    if(vids.length===0) main.appendChild(el('div',{class:'muted'},'No videos yet.'));
+    const g = el('div',{class:'grid5'}); vids.forEach(v=>g.appendChild(videoCard(v))); main.appendChild(g);
+  } else {
+    const totalViews = vids.reduce((n,v)=>n+stats(v.id).views,0);
+    main.appendChild(el('h3',{style:'margin-top:0;font-weight:500'},'About'));
+    const d = el('div',{class:'aboutRow'}); d.style.whiteSpace='pre-wrap'; d.textContent = p.bio || 'No channel description.'; main.appendChild(d);
+    main.appendChild(el('div',{class:'aboutRow'}, fmtNum(vids.length)+' videos \u2022 '+fmtViews(totalViews)+' \u2022 '+fmtNum(subCount(pk))+' subscribers'));
+    if(ME && ME.pubkey===pk) main.appendChild(ownerForm(p));
+  }
+  body.appendChild(main);
+  const side = el('div',{class:'chSide'});
+  side.appendChild(el('h4',{},'Related channels'));
+  const others = channelsByRecent().filter(x=>x!==pk).slice(0,8);
+  if(others.length===0) side.appendChild(el('div',{class:'small'},'No other channels yet.'));
+  others.forEach(o=>{
+    const rr = el('div',{class:'relRow'});
+    rr.appendChild(avatarEl(o,32)); rr.appendChild(chanLink(o));
+    const on = subs.includes(o);
+    const b = el('button',{class:'gbtn', type:'button', style:'height:26px;padding:0 8px;font-size:12px'}, on?'Subscribed':'Subscribe');
+    b.onclick = ()=>toggleSub(o); rr.appendChild(b); side.appendChild(rr);
+  });
+  body.appendChild(side);
+  page.appendChild(banner); page.appendChild(head); page.appendChild(body);
+}
+function ownerForm(p){
+  const f = el('div',{class:'form', style:'margin-top:24px;border-top:1px solid #e2e2e2;padding-top:12px;max-width:520px'});
+  f.appendChild(el('h3',{style:'font-weight:500'},'Edit your channel'));
+  f.appendChild(el('label',{},'Channel name'));
+  const dn = el('input',{type:'text', id:'chName'}); dn.value = p.displayName||''; f.appendChild(dn);
+  f.appendChild(el('label',{},'Description'));
+  const bio = el('textarea',{rows:'4', id:'chBio'}); bio.value = p.bio||''; f.appendChild(bio);
+  f.appendChild(el('label',{},'Channel icon URL (files.catbox.moe, square image)'));
+  const av = el('input',{type:'text', id:'chAvatar'}); av.value = p.avatar||''; f.appendChild(av);
+  f.appendChild(el('label',{},'Channel banner URL (files.catbox.moe)'));
+  const bn = el('input',{type:'text', id:'chBanner'}); bn.value = p.banner||''; f.appendChild(bn);
+  const msg = el('div',{class:'small', style:'margin-top:6px'});
+  const save = el('button',{class:'gbtn blue', type:'button', style:'margin-top:12px'}, 'Save');
+  save.onclick = ()=>saveChannel(dn.value.trim(), bio.value.trim(), av.value.trim(), bn.value.trim(), msg);
+  f.appendChild(save); f.appendChild(msg);
+  f.appendChild(el('h3',{style:'font-weight:500;margin-top:28px'},'Change password'));
+  const o = el('input',{type:'password', placeholder:'current password'});
+  const n = el('input',{type:'password', placeholder:'new password', style:'margin-top:6px'});
+  const pm = el('div',{class:'small', style:'margin-top:6px'});
+  const pb = el('button',{class:'gbtn', type:'button', style:'margin-top:8px'}, 'Change password');
+  pb.onclick = async ()=>{
+    if(!o.value || !n.value){ pm.textContent='Fill in both fields.'; return; }
+    pm.textContent='Verifying…';
+    const res = await changePassword(o.value, n.value);
+    pm.textContent = res.ok ? 'Password changed.' : 'Current password is incorrect. Nothing was changed.';
+    if(res.ok){ o.value=''; n.value=''; }
+  };
+  f.appendChild(o); f.appendChild(n); f.appendChild(pb); f.appendChild(pm);
+  return f;
+}
+
+function myReaction(id){ const r = reactions.get(id); const x = r && ME ? r.get(ME.pubkey) : null; return x ? x.type : null; }
+function requireLogin(){ if(ME) return true; openLogin(); return false; }
+function gotoUpload(){ if(requireLogin()) location.hash = '#/upload'; }
+
+function signWith(key, kind, tags, content){
+  const evt = { kind, created_at: nowSec(), tags, content, pubkey: key.pk };
+  const signed = finalizeEvent(evt, key.sk);
+  publishEverywhere(signed);
+  return signed;
+}
+const progressMap = new Map();
+const rawEvents = new Map();
+let outbox = (lsGet('gt_outbox', []) || []).filter(x=>x && x.event && Array.isArray(x.done)).map(x=>({event:x.event, done:x.done, state:{}}));
+outbox.forEach(x=>progressMap.set(x.event.id, x));
+let pumping = false;
+let pumpAgain = false;
+function saveOutbox(){ lsSet('gt_outbox', outbox.slice(-60)); }
+function withTimeout(p, ms){
+  return new Promise((res, rej)=>{
+    const t = setTimeout(()=>rej(new Error('timeout')), ms);
+    p.then(v=>{ clearTimeout(t); res(v); }, e=>{ clearTimeout(t); rej(e); });
+  });
+}
+async function sendToRelay(event, url){
+  try{
+    const relay = await withTimeout(pool.ensureRelay(url), 8000);
+    await withTimeout(relay.publish(event), 10000);
+    return true;
+  }catch(e){
+    return /duplicate/i.test(String((e && e.message) || e));
+  }
+}
+function publishEverywhere(event){
+  const item = {event, done:[], state:{}};
+  outbox.push(item); progressMap.set(event.id, item);
+  saveOutbox(); pumpOutbox();
+  return item;
+}
+function pendingFor(item){ return RELAYS.filter(u=>!item.done.includes(u) && !(item.state[u] && item.state[u].gave)); }
+async function pumpOutbox(){
+  if(pumping){ pumpAgain = true; return; }
+  pumping = true;
+  try{
+    const jobs = [];
+    const now = Date.now();
+    outbox.forEach(item=>{
+      RELAYS.forEach(url=>{
+        if(item.done.includes(url)) return;
+        const st = item.state[url] || {tries:0, next:0};
+        item.state[url] = st;
+        if(st.gave || st.next>now) return;
+        jobs.push((async ()=>{
+          const ok = await sendToRelay(item.event, url);
+          if(ok){ if(!item.done.includes(url)) item.done.push(url); }
+          else{
+            st.tries++;
+            st.next = Date.now() + Math.min(300000, 3000*Math.pow(2, st.tries));
+            if(st.tries>=8) st.gave = true;
+          }
+        })());
+      });
+    });
+    await Promise.all(jobs);
+    outbox = outbox.filter(item=>pendingFor(item).length>0);
+    saveOutbox();
+    renderOutboxStatus();
+    if(currentRoute.name==='watch' && progressMap.has(currentRoute.arg)) refreshWatch();
+  } finally {
+    pumping = false;
+    if(pumpAgain){ pumpAgain = false; pumpOutbox(); }
+  }
+}
+async function waitForAck(item, ms){
+  const end = Date.now() + ms;
+  while(Date.now() < end){
+    if(item.done.length>0) return true;
+    if(pendingFor(item).length===0) return false;
+    await new Promise(r=>setTimeout(r, 200));
+  }
+  return item.done.length>0;
+}
+function renderOutboxStatus(){
+  const n = outbox.length;
+  const o = document.getElementById('outboxText');
+  if(o) o.textContent = n ? ('Sending ' + n + (n===1?' item':' items') + ' to relays...') : '';
+}
+function rebroadcastOwn(){
+  if(!ME) return;
+  let n = 0;
+  rawEvents.forEach(ev=>{
+    if(ev.pubkey!==ME.pubkey || progressMap.has(ev.id) || n>=20) return;
+    const seen = new Set();
+    try{ const st = pool.seenOn.get(ev.id); if(st) st.forEach(r=>seen.add(String(r.url).replace(/\/$/,''))); }catch(e){}
+    if(seen.size===0) return;
+    const missing = RELAYS.filter(u=>!seen.has(u.replace(/\/$/,'')));
+    if(missing.length===0) return;
+    const item = {event:ev, done:RELAYS.filter(u=>!missing.includes(u)), state:{}};
+    outbox.push(item); progressMap.set(ev.id, item); n++;
+  });
+  if(n){ saveOutbox(); pumpOutbox(); }
+}
+function meKey(){ return {sk:ME.secretKey, pk:ME.pubkey}; }
+function canPost(content){
+  const state = lsGet('gt_antispam', {lastPost:0, times:[], recent:[]});
+  const now = Date.now();
+  if(now - state.lastPost < 8000) return "Please wait a few seconds between posts.";
+  state.times = state.times.filter(t=>now-t < 10*60*1000);
+  if(state.times.length >= 15) return "Posting limit reached, try again later.";
+  if(state.recent.includes(content.trim())) return "Duplicate content blocked.";
+  return null;
+}
+function recordPost(content){
+  const state = lsGet('gt_antispam', {lastPost:0, times:[], recent:[]});
+  const now = Date.now();
+  state.lastPost = now; state.times.push(now);
+  state.recent.push(content.trim()); if(state.recent.length>10) state.recent.shift();
+  lsSet('gt_antispam', state);
+}
+function baseTags(kindTag){ return [["t",APP_NAMESPACE],["t",APP_NAMESPACE+(kindTag==='v'?'-video':'-comment')],["gt",kindTag],["u",ME.username],["tag",ME.tag]]; }
+
+async function publishVideo(title, desc, url, msgEl){
+  if(!requireLogin()) return null;
+  title = (title||'').trim(); desc = (desc||'').trim();
+  if(!title){ msgEl.textContent='Enter a title.'; return null; }
+  if(!validVideoUrl(url)){ msgEl.textContent='Invalid Catbox video link.'; return null; }
+  const err = canPost(title+url);
+  if(err){ msgEl.textContent = err; return null; }
+  const tags = baseTags('v'); tags.push(["title", title.slice(0,100)]); tags.push(["video", url]);
+  const signed = signWith(meKey(), 1, tags, desc.slice(0,5000));
+  addEvent(signed);
+  recordPost(title+url);
+  return {id:signed.id, item:progressMap.get(signed.id)};
+}
+async function publishComment(videoId, parent, text){
+  if(!requireLogin()) return false;
+  text = (text||'').trim(); if(!text) return false;
+  const err = canPost(text);
+  if(err){ alert(err); return false; }
+  const tags = baseTags('c'); tags.push(["v", videoId]); tags.push(["e", parent, "", "reply"]);
+  const signed = signWith(meKey(), 1, tags, text.slice(0,2000));
+  addEvent(signed); recordPost(text); refresh();
+  return true;
+}
+async function react(id, type){
+  if(!requireLogin()) return;
+  const signed = signWith(meKey(), 7, [["e",id],["t",APP_NAMESPACE],["t",APP_NAMESPACE+"-react"]], type);
+  addEvent(signed); refresh();
+}
+function recordView(id){
+  const viewed = lsGet('gt_viewed', []);
+  const key = ME ? meKey() : anon;
+  if(!key || viewed.includes(id)) return;
+  viewed.push(id); lsSet('gt_viewed', viewed.slice(-500));
+  const signed = signWith(key, 7, [["e",id],["t",APP_NAMESPACE],["t",APP_NAMESPACE+"-view"]], 'view');
+  addEvent(signed); refresh();
+}
+async function toggleSub(pk){
+  if(!requireLogin()) return;
+  if(pk===ME.pubkey){ alert('You cannot subscribe to your own channel.'); return; }
+  subs = subs.includes(pk) ? subs.filter(x=>x!==pk) : subs.concat([pk]);
+  const signed = signWith(meKey(), 30078, [["d","gt-subs"],["t",APP_NAMESPACE]], JSON.stringify(subs));
+  subsByUser.set(ME.pubkey, {list:subs.slice(), created_at:signed.created_at});
+  updateGuide(); refresh();
+}
+async function saveChannel(name, bio, avatar, banner, msgEl){
+  if(!requireLogin()) return;
+  msgEl.textContent = '';
+  if(avatar){
+    if(!validImageUrl(avatar)){ msgEl.textContent='Icon must be an https://files.catbox.moe/ image.'; return; }
+    if(!(await isSquareImage(avatar))){ msgEl.textContent='Channel icons must be square.'; return; }
+  }
+  if(banner && !validImageUrl(banner)){ msgEl.textContent='Banner must be an https://files.catbox.moe/ image.'; return; }
+  const content = JSON.stringify({username:ME.username, tag:ME.tag, displayName:name||ME.username, bio, avatar, banner});
+  const signed = signWith(meKey(), 30078, [["d","gt-profile"],["t",APP_NAMESPACE]], content);
+  addEvent(signed);
+  msgEl.textContent = 'Saved.';
+  updateHeader(); refresh();
+}
+function deleteEvent(id){
+  const signed = signWith(meKey(), 5, [["e",id],["t",APP_NAMESPACE]], '');
+  addEvent(signed);
+  if(currentRoute.name==='watch' && currentRoute.arg===id) location.hash = '#/'; else refresh();
+}
+
+function addEvent(e){
+  try{ if(!verifyEvent(e)) return false; }catch(err){ return false; }
+  if(e.kind===1 || e.kind===30078) rawEvents.set(e.kind===30078 ? e.pubkey+':'+((e.tags.find(t=>t[0]==='d')||[])[1]||'') : e.id, e);
+  if(e.kind===1){
+    const gt = (e.tags.find(t=>t[0]==='gt')||[])[1];
+    if(deletedBy.get(e.id)===e.pubkey) return false;
+    const u = e.tags.find(t=>t[0]==='u'), tg = e.tags.find(t=>t[0]==='tag');
+    if(gt==='v'){
+      const title = (e.tags.find(t=>t[0]==='title')||[])[1];
+      const url = (e.tags.find(t=>t[0]==='video')||[])[1];
+      if(!title || !url || !validVideoUrl(url)) return false;
+      if(videos.has(e.id)) return false;
+      videos.set(e.id, {id:e.id, pubkey:e.pubkey, title:title.slice(0,100), desc:e.content.slice(0,5000), url, created_at:e.created_at});
+    } else if(gt==='c'){
+      const video = (e.tags.find(t=>t[0]==='v')||[])[1];
+      const parent = (e.tags.find(t=>t[0]==='e'&&t[3]==='reply')||[])[1];
+      if(!video || !parent || comments.has(e.id)) return false;
+      comments.set(e.id, {id:e.id, pubkey:e.pubkey, video, parent, text:e.content.slice(0,2000), created_at:e.created_at});
+    } else return false;
+    if(u && tg) ensureProfile(e.pubkey, u[1], tg[1]);
+    return true;
+  }
+  if(e.kind===7){
+    const id = (e.tags.find(t=>t[0]==='e')||[])[1]; if(!id) return false;
+    if(e.content==='view'){ const s = viewsMap.get(id) || new Set(); if(s.has(e.pubkey)) return false; s.add(e.pubkey); viewsMap.set(id, s); return true; }
+    if(!['+','-','0'].includes(e.content)) return false;
+    const m = reactions.get(id) || new Map();
+    const prev = m.get(e.pubkey);
+    if(prev && prev.created_at>=e.created_at) return false;
+    m.set(e.pubkey, {type:e.content, created_at:e.created_at}); reactions.set(id, m);
+    return true;
+  }
+  if(e.kind===5){
+    let changed = false;
+    e.tags.filter(t=>t[0]==='e').forEach(t=>{
+      const id = t[1]; deletedBy.set(id, e.pubkey);
+      const v = videos.get(id); if(v && v.pubkey===e.pubkey){ videos.delete(id); changed = true; }
+      const c = comments.get(id); if(c && c.pubkey===e.pubkey){ comments.delete(id); changed = true; }
+    });
+    return changed;
+  }
+  if(e.kind===30078){
+    const d = (e.tags.find(t=>t[0]==='d')||[])[1];
+    try{
+      if(d==='gt-profile'){
+        const c = JSON.parse(e.content);
+        const prev = profiles.get(e.pubkey);
+        if(prev && prev.updated && prev.updated>e.created_at) return false;
+        profiles.set(e.pubkey, {username:String(c.username||''), tag:String(c.tag||''), displayName:String(c.displayName||c.username||'').slice(0,60), bio:String(c.bio||'').slice(0,2000), avatar:validImageUrl(c.avatar)?c.avatar:'', banner:validImageUrl(c.banner)?c.banner:'', updated:e.created_at});
+        return true;
+      }
+      if(d==='gt-subs'){
+        const list = JSON.parse(e.content); if(!Array.isArray(list)) return false;
+        const prev = subsByUser.get(e.pubkey);
+        if(prev && prev.created_at>e.created_at) return false;
+        subsByUser.set(e.pubkey, {list:list.filter(x=>typeof x==='string'), created_at:e.created_at});
+        if(ME && e.pubkey===ME.pubkey) subs = subsByUser.get(e.pubkey).list.slice();
+        return true;
+      }
+    }catch(err){ return false; }
+  }
+  return false;
+}
+let renderTimer = null;
+function onRelayEvent(e){ if(addEvent(e)) scheduleRefresh(); }
+function scheduleRefresh(){
+  if(renderTimer) return;
+  renderTimer = setTimeout(()=>{ renderTimer=null; refresh(); }, 250);
+}
+let subHandles = [];
+function subscribeAll(){
+  subHandles.forEach(h=>{ try{ h.close(); }catch(e){} });
+  subHandles = [];
+  const f = (filter)=>{ try{ subHandles.push(pool.subscribeMany(RELAYS, [filter], {onevent:onRelayEvent})); }catch(e){} };
+  f({kinds:[1], "#t":[APP_NAMESPACE+"-video"], limit:400});
+  f({kinds:[1], "#t":[APP_NAMESPACE+"-comment"], limit:800});
+  f({kinds:[7], "#t":[APP_NAMESPACE+"-react"], limit:800});
+  f({kinds:[7], "#t":[APP_NAMESPACE+"-view"], limit:800});
+  f({kinds:[5], "#t":[APP_NAMESPACE], limit:300});
+  f({kinds:[30078], "#t":[APP_NAMESPACE], "#d":["gt-profile"], limit:300});
+  f({kinds:[30078], "#t":[APP_NAMESPACE], "#d":["gt-subs"], limit:300});
+}
+
+let currentRoute = {name:'home'};
+function parseRoute(){
+  const h = location.hash.replace(/^#\/?/,'');
+  const [path, qs] = h.split('?');
+  const parts = path.split('/').filter(Boolean);
+  return {name: parts[0]||'home', arg: parts[1]||null, sub: parts[2]||null, params: new URLSearchParams(qs||'')};
+}
+function renderRoute(keepScroll){
+  const y = window.scrollY;
+  const r = parseRoute(); currentRoute = r;
+  const page = $('page'); page.textContent = '';
+  watchState = null;
+  document.querySelectorAll('#guide .gitem[data-route]').forEach(g=>g.classList.toggle('active', g.dataset.route===r.name));
+  $('guideMyChannel').classList.toggle('active', r.name==='channel' && !!ME && r.arg===ME.pubkey);
+  const pages = {home:pageHome, trending:pageTrending, subscriptions:pageSubs, watch:pageWatch, channel:pageChannel, upload:pageUpload, results:pageResults};
+  (pages[r.name]||pageHome)(page, r);
+  const foot = el('footer'); const dot = el('span',{class:'statusdot', id:'statusDot'}); const rt = el('span',{id:'relayText'});
+  foot.appendChild(dot); foot.appendChild(rt); foot.appendChild(el('span',{}, '\u2022 Videos are hosted on Catbox'));
+  foot.appendChild(el('span',{id:'outboxText'}));
+  page.appendChild(foot);
+  dot.onclick = ()=>alert(dot.title);
+  renderStatus(); renderOutboxStatus();
+  window.scrollTo(0, keepScroll ? y : 0);
+}
+function refresh(){
+  updateGuide();
+  if(currentRoute.name==='watch'){ refreshWatch(); return; }
+  const a = document.activeElement;
+  if(a && $('page').contains(a) && (a.tagName==='INPUT'||a.tagName==='TEXTAREA')) return;
+  if(currentRoute.name==='upload') return;
+  renderRoute(true);
+}
+window.addEventListener('hashchange', ()=>renderRoute(false));
+
+function updateGuide(){
+  const box = $('guideSubs'); box.textContent = '';
+  $('guideSignin').classList.toggle('hidden', !!ME);
+  if(!ME || subs.length===0) return;
+  box.appendChild(el('div',{class:'gsection'},'Subscriptions'));
+  subs.forEach(pk=>{
+    const a = el('a',{class:'gitem', href:'#/channel/'+pk});
+    a.appendChild(avatarEl(pk, 24)); a.appendChild(el('span',{style:'overflow:hidden;text-overflow:ellipsis;white-space:nowrap'}, chanName(pk)));
+    box.appendChild(a);
+  });
+}
+function updateHeader(){
+  $('signInBtn').classList.toggle('hidden', !!ME);
+  $('userBox').classList.toggle('hidden', !ME);
+  if(ME){ const h = $('hdrAvatar'); h.textContent=''; const a = avatarEl(ME.pubkey, 32); h.appendChild(a.firstChild); h.style.background = a.style.background; }
+}
+function openLogin(){ $('loginModal').classList.remove('hidden'); showStep('stepUsername'); $('loginUser').focus(); }
+function closeLogin(){ $('loginModal').classList.add('hidden'); }
+
+async function enterApp(k){
+  ME = { username:k.username, tag:k.tag, secretKey:k.secretKey, pubkey:k.pubkey };
+  ensureProfile(ME.pubkey, ME.username, ME.tag);
+  const mine = subsByUser.get(ME.pubkey); subs = mine ? mine.list.slice() : [];
+  closeLogin();
+  if($('stayCheckbox').checked) lsSet('gt_last_username', ME.username);
+  updateHeader(); updateGuide(); renderRoute(true);
+}
+function signOut(){ ME = null; subs = []; $('userMenu').classList.add('hidden'); updateHeader(); updateGuide(); renderRoute(true); }
+
+$('menuBtn').onclick = ()=>$('guide').classList.toggle('collapsed');
+$('signInBtn').onclick = openLogin;
+$('guideSignInBtn').onclick = openLogin;
+$('closeLogin').onclick = closeLogin;
+$('loginModal').onclick = (ev)=>{ if(ev.target===$('loginModal')) closeLogin(); };
+$('uploadBtn').onclick = gotoUpload;
+$('hdrAvatar').onclick = ()=>$('userMenu').classList.toggle('hidden');
+$('signOutBtn').onclick = signOut;
+const goMine = ()=>{ $('userMenu').classList.add('hidden'); if(requireLogin()) location.hash = '#/channel/'+ME.pubkey; };
+$('myChannelMenu').onclick = goMine;
+$('guideMyChannel').onclick = goMine;
+const doSearch = ()=>{ location.hash = '#/results?q=' + encodeURIComponent($('search').value.trim()); };
+$('searchBtn').onclick = doSearch;
+$('search').onkeydown = (ev)=>{ if(ev.key==='Enter') doSearch(); };
+document.addEventListener('click', (ev)=>{ if(!ev.target.closest('#userBox')) $('userMenu').classList.add('hidden'); });
+if(window.innerWidth<=820) $('guide').classList.add('collapsed');
+function showStep(id){
+  ['stepUsername','stepLogin','stepSignup','stepForgot'].forEach(s=>document.getElementById(s).classList.toggle('hidden', s!==id));
+}
+document.getElementById('continueBtn').onclick = async ()=>{
+  const uErr = document.getElementById('usernameErr'); uErr.textContent='';
+  const username = document.getElementById('loginUser').value;
+  if(!normUser(username)){ uErr.textContent='Enter a username.'; return; }
+  uErr.textContent = 'Checking relays…';
+  const {genesis} = parseAccountEvents(await fetchAccountRecords(username));
+  uErr.textContent='';
+  if(genesis){
+    document.getElementById('loginUnameLabel').textContent = normUser(username);
+    showStep('stepLogin');
+  } else {
+    document.getElementById('signupUnameLabel').textContent = normUser(username);
+    showStep('stepSignup');
+  }
+};
+document.getElementById('backFromLogin').onclick = ()=>showStep('stepUsername');
+document.getElementById('backFromSignup').onclick = ()=>showStep('stepUsername');
+document.getElementById('backFromForgot').onclick = ()=>showStep('stepUsername');
+
+document.getElementById('loginBtn').onclick = async ()=>{
+  const errEl = document.getElementById('loginErr'); errEl.textContent='';
+  const username = document.getElementById('loginUser').value;
+  const password = document.getElementById('loginPass').value;
+  errEl.textContent = 'Verifying…';
+  const res = await tryLoginWithPassword(username, password);
+  if(!res.ok){ errEl.textContent = res.reason==='notfound' ? 'Account not found on any relay right now, try again.' : 'Incorrect password.'; return; }
+  errEl.textContent='';
+  enterApp(res, false);
+};
+document.getElementById('signupBtn').onclick = async ()=>{
+  const errEl = document.getElementById('signupErr'); errEl.textContent='';
+  const username = document.getElementById('loginUser').value;
+  const password = document.getElementById('signupPass').value;
+  const question = document.getElementById('signupQuestion').value.trim();
+  const answer = document.getElementById('signupAnswer').value;
+  if(!password || !question || !answer){ errEl.textContent='Fill in all fields.'; return; }
+  errEl.textContent='Creating your account…';
+  const res = await createAccount(username, password, question, answer);
+  if(!res.acked){ errEl.textContent='No relay could be reached yet. Your account is saved and will keep retrying. Try signing in again in a minute.'; return; }
+  errEl.textContent='';
+  enterApp(res, false);
+};
+document.getElementById('forgotLink').onclick = async ()=>{
+  const username = document.getElementById('loginUser').value;
+  document.getElementById('forgotUnameLabel').textContent = normUser(username);
+  document.getElementById('forgotQuestion').textContent = 'Loading question…';
+  showStep('stepForgot');
+  const {genesis} = parseAccountEvents(await fetchAccountRecords(username));
+  document.getElementById('forgotQuestion').textContent = genesis ? ('Question: ' + genesis.data.question) : 'Account not found.';
+};
+document.getElementById('forgotBtn').onclick = async ()=>{
+  const errEl = document.getElementById('forgotErr'); errEl.textContent='';
+  const username = document.getElementById('loginUser').value;
+  const answer = document.getElementById('forgotAnswer').value;
+  const newPass = document.getElementById('forgotNewPass').value;
+  if(!newPass){ errEl.textContent='Enter a new password.'; return; }
+  errEl.textContent='Verifying your answer…';
+  const res = await tryLoginWithAnswer(username, answer);
+  if(!res.ok){ errEl.textContent='Incorrect answer. Recovery is only possible with the exact original answer.'; return; }
+  await publishPasswordUpdate(username, res.secretKey, newPass);
+  errEl.textContent='Password reset. You can log in now.';
+};
+
+setInterval(renderStatus, 5000);
+setInterval(pumpOutbox, 4000);
+setInterval(subscribeAll, 90000);
+setInterval(rebroadcastOwn, 300000);
+setTimeout(rebroadcastOwn, 20000);
+pumpOutbox();
+const lastU = lsGet('gt_last_username', null);
+if(lastU) $('loginUser').value = lastU;
+initIcons();
+subscribeAll();
+renderRoute(false);
+</script>
+</body>
+</html>
